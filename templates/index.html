@@ -1,79 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Morite de la risa con nuestros chistes 😂</title>
     <style>
-
-        body{
+        body {
             font-family: 'Courier New', Courier, monospace;
             background-color: aquamarine;
             height: 100vh;
         }
 
-        .text-center{
+        .text-center {
             text-align: center;
         }
 
-        .title{
+        .title {
             font-size: 3rem;
             margin: 2rem;
             font-style: italic;
             text-transform: uppercase;
         }
 
-        section{
+        section {
             display: flex;
             flex-wrap: wrap;
             max-width: 90%;
             margin: auto;
         }
-        
-        .joke-category{
+
+        .joke-category {
             flex-basis: 25%;
             margin-left: 20px;
             margin-bottom: 20px;
             padding: 40px;
-            box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
+            box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
             background-color: #fff;
             border-radius: 10px;
         }
 
-        .joke-category.prevent{
+        .joke-category.prevent {
             pointer-events: none;
         }
 
-        .shadow{
-            box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
+        .shadow {
+            box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        .bg-1{
+        .bg-1 {
             background-color: cadetblue;
         }
 
-        .bg-2{
+        .bg-2 {
             background-color: chocolate;
         }
-        
-        .bg-3{
-            background-color:chartreuse;
-        }
-        
-        .bg-4{
-            background-color:fuchsia;
-        }
-        
-        .bg-5{
-            background-color:cyan;
+
+        .bg-3 {
+            background-color: chartreuse;
         }
 
-        .joke-category h3{
+        .bg-4 {
+            background-color: fuchsia;
+        }
+
+        .bg-5 {
+            background-color: cyan;
+        }
+
+        .joke-category h3 {
             font-size: 1.75rem;
         }
 
-        .joke-card{
+        .joke-card {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -91,42 +91,43 @@
             font-family: sans-serif;
         }
 
-        .joke-card .close{
+        .joke-card .close {
             font-weight: 800;
             width: 60px;
             height: 60px;
             cursor: default;
         }
 
-        .joke-card.show{
+        .joke-card.show {
             opacity: 1;
             z-index: 1;
         }
 
-        .filters{
+        .filters {
             max-width: 60%;
             margin: 1.5rem auto;
         }
 
-        .filters p{
+        .filters p {
             font-weight: 600;
             font-size: 1.5rem;
         }
 
-        .filters .language-filter{
+        .filters .language-filter {
             margin-right: 15px;
         }
 
-        select{
+        select {
             min-width: 200px;
             padding: 10px 20px;
             background-color: #333;
             color: #fff;
-            border-radius: 10px; 
+            border-radius: 10px;
             border: none;
         }
     </style>
 </head>
+
 <body>
     <h1 class="title text-center">
         ¡Escoge una temática para tu chiste!
@@ -183,7 +184,67 @@
     <div class="joke-card shadow">
         <span class="close">&times;</span>
     </div>
-    
-    <script src="./main.js"></script>
+
+    <script>
+        (function () {
+            let categories = ['Programming', 'Miscellaneous', 'Dark', 'Pun', 'Spooky', 'Christmas']
+            let blacklistFlags = ['nsfw', 'racist', 'sexist']
+            let category = 'Any'
+            let lang = 'en'
+            let langList = document.querySelector('.lang-list')
+            let categoriesBoard = document.querySelectorAll('.joke-category')
+            let jokeCard = document.querySelector('.joke-card')
+
+
+            langList.addEventListener('change', function (e) {
+                lang = e.target.value
+            })
+
+            document.body.addEventListener('click', function (e) {
+                if (e.target != jokeCard) {
+                    if (jokeCard.querySelector('p')) {
+                        jokeCard.querySelector('p').remove()
+                    }
+                    if (jokeCard.querySelector('h3')) {
+                        jokeCard.querySelector('h3').remove()
+                    }
+                    jokeCard.classList.remove('show')
+                }
+            })
+
+            categoriesBoard.forEach(cat => {
+
+
+                cat.addEventListener('click', function () {
+                    if (cat.dataset.category == 'random') {
+                        category = categories.join(',')
+                    } else {
+                        category = cat.dataset.category
+                    }
+                    let apiUrl = `https://v2.jokeapi.dev/joke/${category}?lang=${lang}`
+                    fetch(apiUrl)
+                        .then(response => response.json())
+                        .then(response => {
+                            let p = document.createElement('p')
+                            let h3 = document.createElement('h3')
+
+                            if (response.type == 'twopart') {
+                                h3.textContent = response.setup
+                                p.textContent = response.delivery
+                                jokeCard.appendChild(h3)
+                                jokeCard.appendChild(p)
+                            }
+
+                            if (response.type == 'single') {
+                                p.textContent = response.joke
+                                jokeCard.appendChild(p)
+                            }
+                            jokeCard.classList.add('show')
+                        })
+                })
+            })
+        })()
+    </script>
 </body>
+
 </html>
